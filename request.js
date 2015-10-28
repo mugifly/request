@@ -9,6 +9,7 @@ var http = require('http')
   , bl = require('bl')
   , hawk = require('hawk')
   , aws = require('aws-sign2')
+  , resolvmon = require('resolvmon')
   , httpSignature = require('http-signature')
   , mime = require('mime-types')
   , stringstream = require('stringstream')
@@ -34,8 +35,9 @@ var safeStringify = helpers.safeStringify
   , version = helpers.version
   , globalCookieJar = cookies.jar()
 
-
 var globalPool = {}
+
+resolvmon.start()
 
 function filterForNonReserved(reserved, options) {
   // Filter out properties that are not reserved.
@@ -729,6 +731,9 @@ Request.prototype.start = function () {
   if (self._aws) {
     self.aws(self._aws, true)
   }
+
+  // Update resolve dns server
+  resolvmon.update()
 
   // We have a method named auth, which is completely different from the http.request
   // auth option.  If we don't remove it, we're gonna have a bad time.
